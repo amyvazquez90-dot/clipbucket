@@ -10,7 +10,7 @@ DB_PASS="${CB_DB_PASS:-cbpass}"
 echo "[entrypoint] starting on port ${PORT}"
 
 # --- render nginx config with the runtime port -------------------------------
-sed "s/__PORT__/${PORT}/g" /opt/appjet/nginx.conf.template > /etc/nginx/nginx.conf
+sed "s/__PORT__/${PORT}/g" /opt/appjet/nginx.conf.template > /tmp/nginx.conf
 
 # --- start embedded MariaDB --------------------------------------------------
 mkdir -p /run/mysqld /tmp/nginx/body /tmp/nginx/fastcgi /tmp/nginx/proxy /tmp/nginx/uwsgi /tmp/nginx/scgi
@@ -83,4 +83,4 @@ php-fpm83 -F \
 PHP_FPM_PID=$!
 
 echo "[entrypoint] starting nginx"
-exec nginx -g "daemon off;"
+exec nginx -c /tmp/nginx.conf -g "daemon off;"
