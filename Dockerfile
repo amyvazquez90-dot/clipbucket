@@ -22,7 +22,7 @@ WORKDIR /var/www/html
 
 # ClipBucket web root is the upload/ directory.
 COPY upload/ /var/www/html/
-COPY sql/cb_new_install.sql /opt/appjet/cb_new_install.sql
+COPY upload/cb_install/sql/ /opt/appjet/install-sql/
 COPY docker/ /opt/appjet/
 
 RUN adduser -D -u 1000 -h /home/app -s /bin/sh app \
