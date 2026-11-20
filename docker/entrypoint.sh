@@ -71,7 +71,7 @@ if [ ! -f /var/www/html/includes/config.php ]; then
 fi
 
 # --- PHP-FPM + nginx ---------------------------------------------------------
-php-fpm83 -F \
+/usr/local/sbin/php-fpm -F \
   -d auto_prepend_file=/var/www/html/includes/php8_compat.php \
   -d memory_limit=256M \
   -d upload_max_filesize=512M \

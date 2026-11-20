@@ -1,19 +1,22 @@
-FROM alpine:3.21
+# Official PHP image on a supported Alpine release, pinned to a patched 8.3 patch level.
+# PHP 8.3 is used deliberately: the app declares its own array_find(), which collides with PHP 8.4.
+FROM php:8.3.36-fpm-alpine
 
 # Refresh OS packages in the final stage so the image scan sees current security fixes.
 RUN echo "os-refresh 2026-01-01" && apk upgrade --no-cache
 
-RUN apk add --no-cache \
-    nginx \
-    php83 php83-fpm php83-mysqli php83-curl php83-gd php83-mbstring \
-    php83-xml php83-session php83-zip php83-openssl php83-exif \
-    php83-iconv php83-fileinfo php83-tokenizer php83-phar php83-pcntl \
-    mariadb mariadb-client \
-    ffmpeg \
-    tzdata
+# nginx (web server), MariaDB (ClipBucket's database), ffmpeg (video conversion).
+RUN apk add --no-cache nginx mariadb mariadb-client ffmpeg tzdata
 
-ENV PORT=8080 \
-    PHP_INI_SCAN_DIR=/etc/php83/conf.d
+# PHP extensions ClipBucket needs that the official image does not ship.
+RUN apk add --no-cache --virtual .build-deps \
+        $PHPIZE_DEPS libpng-dev libjpeg-turbo-dev freetype-dev libzip-dev \
+ && docker-php-ext-configure gd --with-freetype --with-jpeg \
+ && docker-php-ext-install -j"$(nproc)" mysqli pdo_mysql gd zip exif pcntl \
+ && apk del --no-cache .build-deps \
+ && rm -rf /tmp/pear /usr/src/php.tar.xz
+
+ENV PORT=8080
 
 WORKDIR /var/www/html
 
@@ -24,9 +27,9 @@ COPY docker/ /opt/appjet/
 
 RUN adduser -D -u 1000 -h /home/app -s /bin/sh app \
  && rm -f /etc/nginx/http.d/default.conf \
- && cp /opt/appjet/php-fpm.conf /etc/php83/php-fpm.conf \
- && cp /opt/appjet/php-fpm-pool.conf /etc/php83/php-fpm.d/www.conf \
- && cp /opt/appjet/php.ini /etc/php83/conf.d/99-appjet.ini \
+ && cp /opt/appjet/php-fpm.conf /usr/local/etc/php-fpm.conf \
+ && cp /opt/appjet/php-fpm-pool.conf /usr/local/etc/php-fpm.d/www.conf \
+ && cp /opt/appjet/php.ini /usr/local/etc/php/conf.d/99-appjet.ini \
  && mkdir -p /run/mysqld /var/lib/mysql /tmp/nginx/body /tmp/nginx/fastcgi /tmp/nginx/proxy /tmp/nginx/uwsgi /tmp/nginx/scgi \
  && chmod +x /opt/appjet/entrypoint.sh \
  && chown -R app:app /var/www/html /var/lib/mysql /run/mysqld /tmp/nginx /opt/appjet /home/app
