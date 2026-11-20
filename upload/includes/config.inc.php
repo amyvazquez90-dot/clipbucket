@@ -1,6 +1,10 @@
 <?php
 // PHP 8 shims must load before any ClipBucket code runs.
 require_once __DIR__ . "/php8_compat.php";
+// Smarty 3 library paths: the legacy includes/templatelib defines SMARTY_DIR to
+// its own folder, which makes Smarty 3 look for plugins in a nonexistent path.
+if (!defined('SMARTY_SYSPLUGINS_DIR')) define('SMARTY_SYSPLUGINS_DIR', __DIR__ . '/smartyv3/sysplugins/');
+if (!defined('SMARTY_PLUGINS_DIR')) define('SMARTY_PLUGINS_DIR', __DIR__ . '/smartyv3/plugins/');
 /*
 Config.Inc.php
 */
