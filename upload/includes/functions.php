@@ -1352,6 +1352,7 @@
 	* @return : { string / int } { item if it is found }
 	*/
 
+	if (!function_exists('array_find')) {
 	function array_find($needle, $haystack) {
 	   foreach ($haystack as $item) {
 		  if (strpos($item, $needle) !== FALSE) {
@@ -1359,6 +1360,7 @@
 			 break;
 		  }
 	   }
+	}
 	}
 
 	/**
