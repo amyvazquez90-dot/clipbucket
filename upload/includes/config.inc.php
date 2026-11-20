@@ -1,4 +1,6 @@
 <?php
+// PHP 8 shims must load before any ClipBucket code runs.
+require_once __DIR__ . "/php8_compat.php";
 /*
 Config.Inc.php
 */
