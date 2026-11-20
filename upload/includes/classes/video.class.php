@@ -1985,7 +1985,7 @@ class CBvideo extends CBCategory
             $total = json_decode($total, true);
         }
 		
-		return count($total);
+		return is_array($total) ? count($total) : 0;
 	}
 	
 	/**
