@@ -52,12 +52,26 @@ FLUSH PRIVILEGES;
 SQL
 
 TABLES=$(mariadb --socket="$SOCK" -uroot -N -B \
-  -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='${DB_NAME}'")
+  -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='${DB_NAME}' AND table_name LIKE 'cb\\_%'")
 
+SQL_DIR=/opt/appjet/install-sql
 if [ "$TABLES" = "0" ]; then
-  echo "[entrypoint] importing ClipBucket schema"
-  mariadb --socket="$SOCK" -uroot "$DB_NAME" < /opt/appjet/cb_new_install.sql
-  echo "[entrypoint] schema imported"
+  echo "[entrypoint] importing ClipBucket schema from ${SQL_DIR}"
+  # The installer ships a prefixed schema; ClipBucket uses the cb_ prefix.
+  for f in structure configs countries categories pages email_templates ads_placements add_admin; do
+    if [ -f "${SQL_DIR}/${f}.sql" ]; then
+      sed 's/{tbl_prefix}/cb_/g' "${SQL_DIR}/${f}.sql" \
+        | mariadb --force --socket="$SOCK" -uroot "$DB_NAME" \
+        || echo "[entrypoint] WARN: ${f}.sql reported errors" >&2
+      echo "[entrypoint] imported ${f}.sql"
+    fi
+  done
+fi
+
+if [ "$(mariadb --socket="$SOCK" -uroot -N -B \
+  -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='${DB_NAME}' AND table_name='cb_config'")" = "0" ]; then
+  echo "[entrypoint] ERROR: cb_config table missing after schema import" >&2
+  exit 1
 fi
 
 # --- application config (same template the ClipBucket installer writes) ------
