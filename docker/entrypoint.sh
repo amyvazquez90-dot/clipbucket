@@ -18,6 +18,7 @@ mkdir -p /run/mysqld /tmp/nginx/body /tmp/nginx/fastcgi /tmp/nginx/proxy /tmp/ng
 mariadbd \
   --datadir=/var/lib/mysql \
   --socket="$SOCK" \
+  --skip-networking=0 \
   --bind-address=127.0.0.1 \
   --port=3306 \
   --innodb-buffer-pool-size=64M \
@@ -63,7 +64,9 @@ fi
 # ClipBucket requires BOTH includes/dbconnect.php (required by common.php) and
 # includes/config.php; the bundled installer writes dbconnect.php, so render both.
 render_db_config() {
-  sed -e "s|_DB_HOST_|127.0.0.1|" \
+  # "localhost" makes mysqli use the unix socket above instead of TCP, which
+  # is the path the embedded server is guaranteed to be reachable on.
+  sed -e "s|_DB_HOST_|localhost|" \
       -e "s|_DB_NAME_|${DB_NAME}|" \
       -e "s|_DB_USER_|${DB_USER}|" \
       -e "s|_DB_PASS_|${DB_PASS}|" \
