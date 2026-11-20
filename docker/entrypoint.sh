@@ -74,6 +74,16 @@ if [ "$(mariadb --socket="$SOCK" -uroot -N -B \
   exit 1
 fi
 
+# --- finish installation -----------------------------------------------------
+# check_install() redirects to /cb_install while files/temp/install.me exists and
+# also forces config('closed')=1 whenever that marker is present, so clear it and
+# copy the generated config the installer would have produced.
+rm -f /var/www/html/files/temp/install.me
+if [ ! -f /var/www/html/includes/clipbucket.php ] && [ -f /var/www/html/cb_install/clipbucket.php ]; then
+  cp /var/www/html/cb_install/clipbucket.php /var/www/html/includes/clipbucket.php
+  echo "[entrypoint] wrote includes/clipbucket.php"
+fi
+
 # --- application config (same template the ClipBucket installer writes) ------
 # ClipBucket requires BOTH includes/dbconnect.php (required by common.php) and
 # includes/config.php; the bundled installer writes dbconnect.php, so render both.
