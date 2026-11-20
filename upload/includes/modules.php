@@ -35,7 +35,7 @@ class Modules
 	function ActivateModule($module){
 		$data = $this->GetModuleDetails($module);
 		if(!empty($data['module_name'])){
-		mysqli_query($GLOBALS['db']->mysqli, "UPDATE ".tbl('modules')." SET active = '"'yes'"' WHERE module_name = '".$module."'");
+		mysqli_query($GLOBALS['db']->mysqli, "UPDATE ".tbl('modules')." SET active = 'yes' WHERE module_name = '".$module."'");
 		$msg = "Module Has Been Activated";
 		}else{
 		$msg = "Module Doesnt Exist";
@@ -48,7 +48,7 @@ class Modules
 	function DeActivateModule($module){
 		$data = $this->GetModuleDetails($module);
 		if(!empty($data['module_name'])){
-		mysqli_query($GLOBALS['db']->mysqli, "UPDATE ".tbl('modules')." SET active = '"'no'"' WHERE module_name = '".$module."'");
+		mysqli_query($GLOBALS['db']->mysqli, "UPDATE ".tbl('modules')." SET active = 'no' WHERE module_name = '".$module."'");
 		$msg = "Module Has Been DeActivated";
 		}else{
 		$msg = "Module Doesnt Exist";
