@@ -60,15 +60,24 @@ if [ "$TABLES" = "0" ]; then
 fi
 
 # --- application config (same template the ClipBucket installer writes) ------
-if [ ! -f /var/www/html/includes/config.php ]; then
-  echo "[entrypoint] writing includes/config.php"
+# ClipBucket requires BOTH includes/dbconnect.php (required by common.php) and
+# includes/config.php; the bundled installer writes dbconnect.php, so render both.
+render_db_config() {
   sed -e "s|_DB_HOST_|127.0.0.1|" \
       -e "s|_DB_NAME_|${DB_NAME}|" \
       -e "s|_DB_USER_|${DB_USER}|" \
       -e "s|_DB_PASS_|${DB_PASS}|" \
       -e "s|_TABLE_PREFIX_|cb_|" \
-      /var/www/html/cb_install/dbconnect.php > /var/www/html/includes/config.php
-fi
+      /var/www/html/cb_install/dbconnect.php > "$1"
+}
+
+for cfg in /var/www/html/includes/dbconnect.php /var/www/html/includes/config.php; do
+  if [ ! -s "$cfg" ]; then
+    echo "[entrypoint] writing ${cfg#/var/www/html/}"
+    render_db_config "$cfg"
+    chown app:app "$cfg" 2>/dev/null || true
+  fi
+done
 
 # --- PHP-FPM + nginx ---------------------------------------------------------
 /usr/local/sbin/php-fpm -F \
