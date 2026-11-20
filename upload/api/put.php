@@ -372,7 +372,6 @@ switch ($mode) {
         {
             case 'v':
             case 'video':
-            default:
             {
                     
                     $reported = $cbvideo->action->report_it($id);
@@ -381,7 +380,6 @@ switch ($mode) {
 
             case 'g':
             case 'group':
-            default:
             {
                    // $id = $_POST['id'];
                     $cbgroup->action->report_it($id);
@@ -390,7 +388,6 @@ switch ($mode) {
 
             case 'u':
             case 'user':
-            default:
             {
                     //$id = $_POST['id'];
                     $userquery->action->report_it($id);
@@ -589,7 +586,6 @@ switch ($mode) {
         }
         break;
     
-    default:
         exit(json_encode(array('err'=>lang('Invalid request'))));
 }
 ?>
