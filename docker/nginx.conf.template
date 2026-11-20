@@ -24,6 +24,7 @@ http {
     scgi_temp_path /tmp/nginx/scgi;
 
     server {
+    absolute_redirect off;
         listen __PORT__;
         server_name _;
 
